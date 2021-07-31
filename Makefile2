@@ -1,0 +1,56 @@
+NAME = Main_Gstreamer
+DIR_INC = .
+DIR_SRC = .
+DIR_OBJ = ./obj
+DIR_BIN = ./bin
+
+CC = gcc
+#CC = g++
+
+## debug flag
+DBG_ENABLE = 1
+
+
+INCLUDE = -I$(DIR_INC)
+
+
+## debug for debug info, when use gdb to debug
+ifeq (1, ${DBG_ENABLE})
+CFLAGS += -D_DEBUG -O0 -g -DDEBUG=1
+endif
+
+## get all include path
+CFLAGS += $(foreach dir, $(DIR_INC), -I$(dir))
+CFLAGS += -std=c++11
+
+
+TARGET = $(DIR_BIN)/$(NAME)
+
+SRC = $(wildcard ${DIR_SRC}/*.c)
+#SRC+= $(wildcard $(DIR_SRC)/*.cpp)
+
+
+OBJS = $(SRC:$(DIR_SRC)/%.c=$(DIR_OBJ)/%.o)
+#OBJS+ = $(SRC:$(DIR_SRC)/%.cpp=$(DIR_OBJ)/%.o)
+
+$(TARGET):$(OBJS)
+		@echo 'depend file "$^" ...'
+		$(CC) $(CFLAGS) -o $(TARGET) $(OBJS)
+
+$(DIR_OBJ)/%.o:$(DIR_SRC)/%.c
+		@echo 'compiling object file "$@" ...'
+		$(CC) $(CFLAGS) -c -o $@ $<
+		
+$(DIR_OBJ):
+	mkdir $(DIR_OBJ)
+
+$(DIR_BIN):
+	mkdir $(DIR_BIN)
+
+clean:
+	rm -fr $(OBJS) $(TARGET);
+	rm -fr $(DIR_OBJ) $(DIR_BIN);
+
+all:
+	@echo $(SRC)
+	@echo $(OBJS)
